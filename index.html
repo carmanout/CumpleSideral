@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Cumpleaños Sideral</title>
+    <style>
+        body {
+            background-color: black;
+            background-image: url("https://wallpapercave.com/wp/wp2088351.jpg");
+            background-repeat: no-repeat;
+            background-size: cover;
+            color: white;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            text-align: center;
+            margin-top: 50px;
+            animation: fadeInDown 2s ease-in-out;
+        }
+        form, #resultados {
+            max-width: 400px;
+            margin: auto;
+            padding: 20px;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 10px;
+            animation: bounceIn 1s ease-in-out;
+        }
+        label, input, button {
+            display: block;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px 20px;
+            border: none;
+            cursor: pointer;
+            animation: pulse 2s infinite;
+        }
+        @keyframes fadeInDown {
+            from {opacity: 0; transform: translateY(-50px);}
+            to {opacity: 1; transform: translateY(0);}
+        }
+        @keyframes bounceIn {
+            0% {transform: scale(0.3); opacity: 0;}
+            50% {transform: scale(1.1); opacity: 0.5;}
+            100% {transform: scale(1); opacity: 1;}
+        }
+        @keyframes pulse {
+            0% {transform: scale(1);}
+            50% {transform: scale(1.05);}
+            100% {transform: scale(1);}
+        }
+    </style>
+</head>
+<body>
+    <h1>Cálculo de Cumpleaños Sideral</h1>
+    <form id="formulario">
+        <label for="fechaNacimiento">Fecha de nacimiento:</label>
+        <input type="date" id="fechaNacimiento">
+        <label for="horaNacimiento">Hora de nacimiento:</label>
+        <input type="time" id="horaNacimiento">
+        <button type="button" onclick="calcular()">Calcular</button>
+    </form>
+
+    <div id="resultados"></div>
+
+    <script>
+        function esBisiesto(ano) {
+            return (ano % 4 === 0 && ano % 100 !== 0) || (ano % 400 === 0);
+        }
+
+        function segundosAHMS(segundos) {
+            const h = Math.floor(segundos / 3600);
+            const m = Math.floor((segundos % 3600) / 60);
+            const s = Math.floor(segundos % 60);
+            return `${h}h ${m}m ${s}s`;
+        }
+
+        function calcular() {
+            const fechaNacimiento = new Date(document.getElementById("fechaNacimiento").value + "T" + document.getElementById("horaNacimiento").value + ":00");
+            const fechaActual = new Date();
+
+            let proximoCumple = new Date(fechaNacimiento);
+            proximoCumple.setFullYear(fechaActual.getFullYear());
+            if (proximoCumple < fechaActual) {
+                proximoCumple.setFullYear(fechaActual.getFullYear() + 1);
+            }
+
+            let anosBisiestos = 0;
+            let segundosExceso = 0;
+
+            for (let ano = fechaNacimiento.getFullYear(); ano < proximoCumple.getFullYear(); ano++) {
+                segundosExceso += 20925.336; 
+                if (esBisiesto(ano)) {
+                    segundosExceso -= 86400;
+                    anosBisiestos++;
+                }
+            }
+
+            const proximoCumpleSideral = new Date(proximoCumple.getTime() + Math.round(segundosExceso * 1000));
+            const diferenciaMinutos = (proximoCumpleSideral - proximoCumple) / 60000;
+            const diferenciaHMS = segundosAHMS(diferenciaMinutos * 60);
+            const excesoHMS = segundosAHMS(segundosExceso);
+
+            document.getElementById("resultados").innerHTML = `
+                <p>Próximo cumpleaños: ${proximoCumple.toLocaleString()}</p>
+                <p>Próximo cumpleaños sideral: ${proximoCumpleSideral.toLocaleString()}</p>
+                <p>Diferencia: ${diferenciaHMS}</p>
+                <p>Años bisiestos vividos: ${anosBisiestos}</p>
+                <p>Exceso sideral acumulado: ${excesoHMS}</p>
+            `;
+        }
+    </script>
+</body>
+</html>
